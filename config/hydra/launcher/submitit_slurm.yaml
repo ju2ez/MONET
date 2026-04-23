@@ -1,0 +1,24 @@
+# conf/hydra/launcher/submitit_slurm.yaml
+_target_: hydra_plugins.hydra_submitit_launcher.submitit_launcher.SlurmLauncher
+
+# Where submitit will put state under the Hydra multirun output dir
+submitit_folder: ${hydra.sweep.dir}/.submitit/%j
+
+# Resource defaults per job
+timeout_min: 1440          # 24 hours
+cpus_per_task: 2           # sequential jobs
+gpus_per_task: 0           # no GPU needed
+mem_gb: 8                  # memory per job
+
+name: ${hydra.job.name}
+
+# Job array settings
+array_parallelism: 30
+max_num_timeout: 20        # Allow up to 20 jobs to timeout without stopping multirun
+tasks_per_node: 1
+nodes: 1
+
+# GWDG NHR cluster settings
+partition: "standard96s:shared"
+additional_parameters:
+  constraint: inet

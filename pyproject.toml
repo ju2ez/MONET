@@ -1,0 +1,47 @@
+[project]
+name = "monet"
+version = "0.1.0"
+description = "Multi-task Optimization over Networks (MONET): graph-based multi-task Quality-Diversity optimization."
+readme = "README.md"
+requires-python = ">=3.14.2"
+dependencies = [
+    "contourpy>=1.3.0",
+    "cycler>=0.12.1",
+    "fonttools>=4.60.2",
+    "gym>=0.26.2",
+    "hydra-core>=1.3.2",
+    "joblib>=1.5.3",
+    "kiwisolver>=1.4.7",
+    "matplotlib>=3.9.4",
+    "networkx>=3.2.1",
+    "ntplib>=0.4.0",
+    "numpy<2",
+    "omegaconf>=2.3.0",
+    "packaging>=25.0",
+    "pandas>=2.3.3",
+    "pillow>=11.3.0",
+    "plotly>=6.5.1",
+    "psutil>=7.2.1",
+    "pybullet",
+    "pyparsing>=3.3.1",
+    "rustworkx>=0.17.1",
+    "scikit-learn>=1.6.1",
+    "scipy>=1.13.1",
+    "threadpoolctl>=3.6.0",
+    "torch>=2.8.0",
+    "tqdm>=4.67.1",
+    "wandb>=0.23.1",
+    "hydra-joblib-launcher>=1.2.0",
+    "spotoptim>=0.10.3",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algorithms*", "environments*", "utils*"]
+exclude = ["notebooks*", "config*", "vendor*"]
+namespaces = false
+
+# Build PyBullet from the vendored source (robust on macOS where the
+# prebuilt PyPI wheels sometimes fail to install on newer Python versions).
+[tool.uv.sources]
+pybullet = { path = "./vendor/pybullet" }

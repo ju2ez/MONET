@@ -1,0 +1,108 @@
+# Task configuration: use this to switch between tasks
+#task: "hexapod"  # "archery", "arm", "cartpole", "hexapod"
+task: "arm"
+
+# Environment settings
+timezone: "Europe/Amsterdam"
+
+# Task-specific parameters
+arm:
+  num_tasks: 5000
+  solution_dim: 10
+  task_dim: 2 # angle range, length
+  domain: "10-DoF Arm Kinematics"
+  project: "MONET"
+  min_solution: 0.0 # min solution
+  max_solution: 1.0 # max solution
+
+archery:
+  num_tasks: 5000
+  solution_dim: 2
+  task_dim: 2
+  domain: "Archery"
+  project: "MONET"
+  min_solution: 0.0 # min solution
+  max_solution: 1.0 # max solution
+
+hexapod:
+  num_tasks: 2000
+  solution_dim: 36
+  task_dim: 12 # e.g., lengthes and urdf file
+  domain: "Hexapod Locomotion"
+  project: "MONET"
+  task_directory: "urdf" # Directory containing task files
+  min_solution: 0.0 # min solution
+  max_solution: 1.0 # max solution
+
+cartpole:
+  num_tasks: 5000
+  solution_dim: 16 # neural network weights flattened (only even numbers >8!)
+  task_dim: 2 # masspole, length
+  domain: "Cartpole Balancing"
+  project: "MONET"
+  min_solution: 0.0 # min solution
+  max_solution: 1.0 # max solution
+
+# Algorithm parameters - choose one: "MONET", "MT-ME", or "PT-ME"
+algorithm:
+  name: "MONET" # Switch between "MONET", "MT-ME"
+
+  # shared params
+  max_evals: 1_000_000 # reduced for testing from 1_000_000
+  # max_evals: 1_000 # reduced for testing from 1_000_000
+
+  # MONET specific parameters
+  MONET:
+    copy_criterion: "bigger or equal"
+    threshold: 0
+    strategy: "best_fitness" # "best_fitness", "random", "fitness_proportional", "plane_dd"
+    p_ind: 0.5 # 0 <= p_ind <= 1
+    init_strategy: "copy" # "random" or "copy"
+    neighbor_percentage: 0.01 # percentage of total tasks to use as neighbors
+    num_init_percent: 0.1 # percent of overall tasks
+    neighborhood: "closest" # "random" or "closest" or "distance_proportional"
+    store_similarity_matrix: false
+    n_workers: 1 # >1 enables parallel evaluation; 1 = sequential (original behaviour)
+    individual_learning: ["gaussian_mutation"] # "gaussian_mutation", "polynomial_mutation"
+    social_learning: ["sbx"] # "sbx", "iso_dd", "iso_mtme", "regression"
+    # for gaussian_mutation
+    mutation_std: 0.05
+    # for iso_dd and iso_mtme, see algorithms/common.py for default parameters
+    iso_sigma: 0.00333 # 1./300
+    line_sigma: 0.0667 # 20 ./300
+  # MT-ME specific parameters
+  MT-ME:
+    batch_size: 1
+    cvt_samples: 10000
+    cvt_use_cache: false
+    random_init: 0.1
+    random_init_batch: 1
+    dump_period: 100000
+    parallel: false
+    use_distance: true
+    variation: "iso_dd" # "gaussian_mutation", "polynomial_mutation", "sbx", "iso_dd", "iso_mtme"
+    # for gaussian_mutation
+    mutation_std: 0.05
+    # for iso_dd and iso_mtme, see algorithms/common.py for default parameters
+    iso_sigma: 0.00333
+    line_sigma: 0.0667
+
+  PT-ME:
+    "n_cells": 2000
+    "linreg_sigma": 1.
+    "iso_sigma": 0.01
+    "line_sigma": 0.2
+    "proba_regression": 0.5
+    "variation": "sbx" # "sbx" or "iso-line-dd"
+
+# Logging parameters
+log_interval: 100000 # Log node data every N evaluations
+log_frequency: 10000 # Log progress every N evaluations
+
+# W&B parameters
+wandb:
+  enabled: true # Set to false to disable wandb and use file logging instead
+  dir: "wandb"
+
+# Seed (can be overridden by SLURM_ARRAY_TASK_ID)
+seed: null
