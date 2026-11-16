@@ -3,7 +3,7 @@ label: MT-ME
 algorithm: MT-ME
 domains: [archery, arm]
 seeds: 1-10
-workers: 2
+workers: 4
 max_evals: 1000000
 overrides:
   # MT-ME with the repo's published defaults (config/config.yaml)
