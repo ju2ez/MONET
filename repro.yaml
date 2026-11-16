@@ -1,0 +1,14 @@
+# One row of Table 1 (arXiv:2604.21991), run by scripts/reproduce.py.
+label: MONET_default
+algorithm: MONET
+domains: [archery, arm]
+seeds: 1-10
+workers: 2
+max_evals: 1000000
+overrides:
+  # Section 4.2 default: best_fitness / closest / p_ind=0.3 / 5% neighbours
+  common:
+    - algorithm.MONET.strategy=best_fitness
+    - algorithm.MONET.neighborhood=closest
+    - algorithm.MONET.p_ind=0.3
+    - algorithm.MONET.neighbor_percentage=0.05

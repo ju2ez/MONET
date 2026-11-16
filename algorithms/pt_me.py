@@ -415,6 +415,7 @@ class PTME:
                 stats = self.calculate_archive_stats(archive)
                 self.global_archive_stats.append(stats)
                 mean_fitness_auc.update(current_it, stats['mean_fitness_elites'])
+                print(f"curve n_evals={current_it} mean_fitness={stats['mean_fitness_elites']}", flush=True)
                 logger.info(f"Iteration {current_it}/{self.budget}: "
                            f"Archive size={len([e for e in archive.elites if e is not None])}/{archive.n_cells}, "
                            f"Coverage={stats['coverage']:.2%}, "

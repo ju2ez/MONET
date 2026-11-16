@@ -48,3 +48,6 @@ spot_monet_*.csv
 *.synctex.gz
 *.toc
 *.xdv
+outputs/
+logs/
+cover_max_mean.dat

@@ -221,11 +221,16 @@ class MTME:
                 log_file.write(f"{n_evals} {len(self.archive)} {max(fitness_values)} {np.mean(fitness_values)}\n")
                 log_file.flush()
 
+            # AUC is tracked on the same grid whether or not wandb is enabled
+            # (it used to be updated only inside the wandb branch).
+            if (n_evals % params['log_frequency'] == 0) or (n_evals < init_evals):
+                fitness_values = [species.fitness for species in self.archive.values()]
+                mean_fit = float(np.mean(fitness_values)) if fitness_values else 0.0
+                mean_fitness_auc.update(n_evals, mean_fit)
+                if n_evals % params['log_frequency'] == 0:
+                    print(f"curve n_evals={n_evals} mean_fitness={mean_fit}", flush=True)
             if params['wandb']:
                 if (n_evals % params['log_frequency'] == 0) or (n_evals < init_evals):
-                    fitness_values = [species.fitness for species in self.archive.values()]
-                    mean_fit = float(np.mean(fitness_values)) if fitness_values else 0.0
-                    mean_fitness_auc.update(n_evals, mean_fit)
                     wandb.log({"n_evals": n_evals, "archive_size": len(self.archive), "coverage": len(self.archive) / (n_tasks * 1.0),
                             "median_fitness": np.median(fitness_values), "qd_score": sum(fitness_values),
                                 "max_fitness": max(fitness_values), "mean_fitness": mean_fit,

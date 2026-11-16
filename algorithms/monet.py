@@ -161,6 +161,7 @@ def run_monet(monet, cfg, task_config, use_wandb):
     def _log_metrics(n_eval, steps):
         metrics = calculate_fitness_metrics(monet)
         mean_fitness_auc.update(n_eval, metrics["mean_fitness"])
+        print(f"curve n_evals={n_eval} mean_fitness={metrics['mean_fitness']}", flush=True)
         metrics_logger.log({"step": steps, "n_evals": n_eval,
                              "mean_fitness": metrics["mean_fitness"],
                              "median_fitness": metrics["median_fitness"],
@@ -577,15 +578,20 @@ class MONET:
                 if cache_key in self.neighbors_cache:
                     return self.neighbors_cache[cache_key]
 
-            node_idx = self.task_to_node_idx[task_id]
-            neighbor_indices = self.graph.neighbors(node_idx)  # rustworkx does NOT include self
-            neighbors_with_similarity = []
-            for neighbor_idx in neighbor_indices:
-                neighbor_task_id = self.node_idx_to_task[neighbor_idx]
-                edge_similarity = self.graph.get_edge_data(node_idx, neighbor_idx)
-                if edge_similarity >= threshold:
-                    neighbors_with_similarity.append((neighbor_task_id, edge_similarity))
-            neighbors_with_similarity.sort(key=lambda x: x[1], reverse=True)
+            # Vectorized equivalent of iterating the graph's edges: the graph is
+            # complete with edge weight 1/(1+||v_i - v_j||) (see _initialize_graph),
+            # and get_edge_data is O(degree), which made this cache O(n^3).
+            if not hasattr(self, "_task_vecs"):
+                self._task_vecs = np.array([np.asarray(c.task_vec, dtype=float) for c in self.task_configs])
+                self._task_id_arr = np.array(self.task_ids)
+            t_idx = self.task_index[task_id]
+            dists = np.linalg.norm(self._task_vecs - self._task_vecs[t_idx], axis=1)
+            sims = 1.0 / (1.0 + dists)
+            mask = sims >= threshold
+            mask[t_idx] = False
+            cand = np.nonzero(mask)[0]
+            order = cand[np.argsort(-sims[cand], kind="stable")]
+            neighbors_with_similarity = [(int(self._task_id_arr[k]), float(sims[k])) for k in order]
             if self.distance_proportional_sampling:
                 k = min(num_neighbors, len(neighbors_with_similarity))
                 if k == 0:
