@@ -37,6 +37,8 @@ def parse_seeds(spec):
 def run_job(spec, domain, seed, out_dir):
     job_dir = out_dir / "jobs" / f"{domain}_s{seed}"
     job_dir.mkdir(parents=True, exist_ok=True)
+    # PT-ME dumps its archive to ./logs every 100k evals when no file logger is active
+    (job_dir / "logs").mkdir(exist_ok=True)
     for name in ("env_inits", "urdf"):
         link = job_dir / name
         if not link.is_symlink():
